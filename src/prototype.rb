@@ -1,32 +1,48 @@
 module Prototype
+  # sets that property in this prototype and in all its prototyped objects
   def set_property(symbol, value)
-    set_property_in_place self, symbol, value
-    prototyped_from_me.each do |place| set_property_in_place place, symbol, value end
+    prototyped_from_me.unshift(self).each do |place|
+      _set_property_ place, symbol, value
+    end
   end
 
-  def set_property_in_place(where, symbol, value)
-  where.singleton_class.send :attr_accessor, symbol
-  where.send "#{symbol}=", value
+  def _set_property_(where, symbol, value)
+    where.singleton_class.send :attr_accessor, symbol
+    where.send "#{symbol}=", value
   end
 
+  # sets that method in all prototyped objects from this prototype, and in it too
   def set_method(symbol, behavior)
-    ## converting proc to block again
-    define_singleton_method symbol, &behavior
-    prototyped_from_me.each do |a_prototyped| a_prototyped.define_singleton_method symbol, &behavior end
+    prototyped_from_me.unshift(self).each do |a_prototyped|
+      a_prototyped.define_singleton_method symbol, &behavior
+    end
   end
 
+  # gets every instance who has it as a prototype
   def prototyped_from_me
-    Object.constants.select do |a_prototyped| search_prototyped a_prototyped end
+    ObjectSpace.each_object(PrototypedObject).to_a.select do |a_prototyped|
+      is_it_mine? a_prototyped
+    end
   end
 
-  ## es como un clone pero tuneado (?)
+  # defines all its prototype's methods
   def set_prototype(a_proto)
-    @its_prototype = a_proto
+    self.prototype = a_proto
+    self.prototype.singleton_methods.each do |a_method|
+      set_method(a_method, prototype.method(a_method).to_proc)
+    end
+    self.prototype.instance_variables.each do |a_variable|
+      self.set_property(instance_variable_sym(a_variable), (self.prototype.instance_variable_get a_variable))
+    end
   end
 
-  
-  def search_prototyped(some_object)
-    some_object.respond_to?(:its_prototype=) and @its_prototype.eql? self
+  def instance_variable_sym(v)
+    v.slice(1, v.length).to_sym
+  end
+
+  # is it its prototype?
+  def is_it_mine?(a_prototyped)
+    a_prototyped.prototype.eql? self
   end
 
 end
@@ -34,6 +50,7 @@ end
 class PrototypedObject
   include Prototype
   # every prototypedObject knows who is its prototype.
-  attr_accessor :its_prototype
+  attr_accessor :prototype
 
-  end
+
+end
