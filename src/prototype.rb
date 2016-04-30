@@ -17,7 +17,6 @@ module Prototype
   def get_lambda_method(symbol)
     self.method(symbol).to_proc
   end
-
 end
 
 class PrototypedObject
@@ -33,5 +32,4 @@ class PrototypedObject
     self.instance_exec args, &method
 
   end
-
 end
