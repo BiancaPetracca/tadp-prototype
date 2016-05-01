@@ -19,13 +19,12 @@ describe 'In a prototype' do
   end
 
   it 'should understand property method if set as guerrero s prototype' do
-
-
     otro_guerrero = PrototypedObject.new
     otro_guerrero.set_prototype @guerrero
     otro_guerrero.energia = 90
     expect(otro_guerrero.energia).to eq(90)
   end
+
   it 'should set method' do
   ## suponemos que ya la tiene seteada a la energia
   @guerrero.set_method(:recibe_danio, proc { |pot| @energia = @energia - pot })
@@ -42,21 +41,18 @@ describe 'In a prototype' do
   espadachin.set_prototype(@guerrero)
   espadachin.set_property(:habilidad, 0.5)
   espadachin.set_property(:potencial_espada, 30)
-  espadachin.energia= 120
-   asd = proc { |pot| @energia= @energia + pot }
-  espadachin.instance_exec 10, &asd
-  expect(espadachin.energia).to eq(110)
-  end
+  espadachin.energia= 100
+  ## esto no estaba en el enunciado, pero teniendo en cuenta que  el prototype no deberia heredar estado
+  ## en algun lugar hay que setearle el potencial ofensivo. no deberia tomarlo de @guerrero.
+  espadachin.potencial_ofensivo = 20
 
-=begin
-
+  otro_guerrero = @guerrero.clone
 
     espadachin.set_method(:potencial_ofensivo, proc {
       @potencial_ofensivo + self.potencial_espada * self.habilidad
     })
     espadachin.atacar_a(otro_guerrero)
     expect(otro_guerrero.energia).to eq(75)
-=end
 
-
+end
 end
