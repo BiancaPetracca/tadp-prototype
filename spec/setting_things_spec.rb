@@ -10,7 +10,8 @@ describe 'When defining things in a prototype' do
   end
   it 'should be added to properties' do
     @proto.set_property(:energia, 100)
-    expect(@proto.properties.size).to be 4
+    ## there are 3 methods already defined in before, plus 2 more: :energia and :energia=
+    expect(@proto.methods.size).to be 5
   end
 
   it 'should be added to methods' do
@@ -20,15 +21,15 @@ describe 'When defining things in a prototype' do
   end
 
   it 'should return a behavior' do
-    expect(@proto.properties.select do |key, value| key.eql? :a_property end).to include(:a_property)
+    expect(@proto.methods.select do |key, value| key.eql? :a_property end).to include(:a_property)
   end
 
   it 'should return a behavior, of a property' do
-    expect(@proto.property_behavior(:a_property)).to be_a(Proc)
+    expect(@proto.behavior(:a_property)).to be_a(Proc)
   end
 
   it 'should return a behavior, of a method' do
-    expect(@proto.method_behavior(:a_method)).to be_a(Proc)
+    expect(@proto.behavior(:a_method)).to be_a(Proc)
   end
 
   it 'should return all defined behaviors for that symbol (everytime it should be only one)' do
