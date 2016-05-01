@@ -10,7 +10,7 @@ module Prototype
     # getter
     properties.store "#{symbol}=".to_sym, proc {|val| self.instance_variable_set(var, val)}
     # setter
-    properties.store "#{symbol}".to_sym, proc {self.instance_variable_get(var)[0]}
+    properties.store "#{symbol}".to_sym, proc {self.instance_variable_get(var)}
 
   end
 
@@ -53,7 +53,8 @@ class PrototypedObject
 
   def method_missing(symbol, *args)
     throw NoMethodError unless self.its_prototype.respond_to? symbol
-    beh = self.its_prototype.behavior symbol
-    self.instance_exec args, &beh
+  #  beh = self.its_prototype.behavior symbol
+   # all_args = args
+    self.instance_exec *args, &(self.its_prototype.behavior symbol)
   end
 end
